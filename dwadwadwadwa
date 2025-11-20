@@ -1,0 +1,1667 @@
+-- รอแก้ Ring 
+
+wait(3)
+    local PLACE_ID = game.PlaceId
+
+
+-- 🌍 ตารางสคริปต์ของแต่ละโลก
+local WORLD_SCRIPTS = {
+    [3475397644] = "https://raw.githubusercontent.com/nexonshopopzaza-hue/wdfafwafwaf/refs/heads/main/wdawa", -- Lobby
+    -- … เพิ่มได้ตามโลกของคุณ
+}
+
+-- 🎯 ฟังก์ชันดึง PlaceID จากลิงก์ Roblox
+local function getPlaceIdFromURL(url)
+    return tonumber(string.match(url, "%d+"))
+end
+
+-- 🔎 ฟังก์ชันเช็คว่ามีเส้นทาง workspace.Environment.Nest ไหม
+local function hasNestPath()
+    local ok, result = pcall(function()
+        return workspace:FindFirstChild("Environment")
+            and workspace.Environment:FindFirstChild("Nest")
+    end)
+
+    return ok and result ~= nil
+end
+
+local function runScriptForPlaceID(placeId)
+    local scriptURL = WORLD_SCRIPTS[placeId]
+
+    if not scriptURL then
+        warn("❌ ไม่มีสคริปต์สำหรับ PlaceID:", placeId)
+        return
+    end
+
+    print("🟣 Loading script for world:", placeId, "→", scriptURL)
+
+    local ok, content = pcall(function()
+        return game:HttpGet(scriptURL)
+    end)
+
+    if not ok then
+        warn("❌ HttpGet ล้มเหลว:", content)
+        return
+    end
+
+    -- 🧱 ถ้าข้อมูลว่างหรือไม่มีตัวอักษรเลย → ไม่ต้องรัน
+    if not content or content == "" or content:match("^%s*$") then
+        warn("⚠️ ไฟล์จากลิงก์นี้ว่างเปล่า หรือไม่มีโค้ดให้รัน:", scriptURL)
+        return
+    end
+
+    local runOk, err = pcall(function()
+        loadstring(content)()
+    end)
+
+    if runOk then
+        print("✅ โหลดและรันสคริปต์สำเร็จ:", placeId)
+    else
+        warn("❌ Error ตอนรันสคริปต์:", err)
+    end
+end
+
+
+-- 🟢 ฟังก์ชันรันตั้งแต่เริ่มต้น (เอาไว้ใช้ใน Loader)
+local function startAutoWorldSystem()
+    local placeId = game.PlaceId
+    print("🌍 Current PlaceID:", placeId)
+
+    -- ✔ เช็คก่อนว่ามี Nest ไหม
+    if not hasNestPath() then
+        warn("⛔ ไม่พบเส้นทาง workspace.Environment.Nest → ยกเลิกโหลดสคริปต์")
+        return
+    end
+
+    print("✅ พบเส้นทาง Nest → ดำเนินการโหลดสคริปต์...")
+    runScriptForPlaceID(placeId)
+end
+
+-- ▶️ เรียกใช้งานได้เลย!
+startAutoWorldSystem()
+
+    ---------------------------------------------------------
+    -- 🌍 WORLD 1 : SKIP WORLD (3475397644)
+    ---------------------------------------------------------
+
+    if PLACE_ID == 3475419198 then
+        print("🟢 Loaded World: GRASSLAND → เริ่มระบบ Grassland Missions")
+
+        local url = "https://raw.githubusercontent.com/nexonshopopzaza-hue/dsdwad/refs/heads/main/wdad"
+        local ok, res = pcall(function()
+            return game:HttpGet(url)
+        end)
+
+        if ok then
+            loadstring(res)()
+        else
+            warn("❌ โหลดสคริปต์ Grassland ไม่สำเร็จ:", res)
+        end
+
+        return
+    end
+
+    ---------------------------------------------------------
+    -- 🌍 WORLD 1 : LOBBY (3475397644)
+    ---------------------------------------------------------
+    if PLACE_ID == 3475397644 then
+        print("🟣 Loaded World: LOBBY → เริ่มระบบ Lobby Missions")
+
+        local url = "https://raw.githubusercontent.com/nexonshopopzaza-hue/lobby/refs/heads/main/add"
+        local ok, res = pcall(function()
+            return game:HttpGet(url)
+        end)
+
+        if ok then
+            loadstring(res)()
+        else
+            warn("❌ โหลดสคริปต์ Lobby ไม่สำเร็จ:", res)
+        end
+
+        return
+    end
+
+    ---------------------------------------------------------
+    -- 🌍 WORLD 2 : GRASSLAND (3475419198)
+    ---------------------------------------------------------
+    if PLACE_ID == 3475419198 then
+        print("🟢 Loaded World: GRASSLAND → เริ่มระบบ Grassland Missions")
+
+        local url = "https://raw.githubusercontent.com/nexonshopopzaza-hue/dsdwad/refs/heads/main/wdad"
+        local ok, res = pcall(function()
+            return game:HttpGet(url)
+        end)
+
+        if ok then
+            loadstring(res)()
+        else
+            warn("❌ โหลดสคริปต์ Grassland ไม่สำเร็จ:", res)
+        end
+
+        return
+    end
+
+
+
+
+
+
+
+
+    local Players = game:GetService("Players")
+    local ReplicatedStorage = game:GetService("ReplicatedStorage")
+    local Workspace = game:GetService("Workspace")
+    local RunService = game:GetService("RunService")
+    local VirtualInputManager = game:GetService("VirtualInputManager")
+
+    local Player = Players.LocalPlayer
+    local Character = Player.Character or Player.CharacterAdded:Wait()
+    local HRP = Character:WaitForChild("HumanoidRootPart")
+    local WORLD_ORDER = {
+      
+        "Origins",
+        "Grassland",
+        "Jungle",
+        "Volcano",
+        "Tundra",
+        "Ocean",
+        "Desert",
+        "Fantasy",
+        "Wasteland",
+        "Prehistoric",
+        "Shinrin"
+    }
+
+    local WORLD_IDS = {
+   
+        Origins      = 3475397644,
+        Grassland    = 3475419198,
+        Jungle       = 3475422608,
+        Volcano      = 3487210751,
+        Tundra       = 3623549100,
+        Ocean        = 3737848045,
+        Desert       = 3752680052,
+        Fantasy      = 4174118306,
+        Wasteland    = 4728805070,
+        Prehistoric  = 4869039553,
+        Shinrin      = 125804922932357
+    }
+--------------------------
+-- 🌍 ตั้งค่าเควสของแต่ละโลกแบบแยกตาม PlaceId
+------------------------------------------------------------
+local WORLD_MISSION_REQUIREMENTS = {
+    [3475397644] = { -- Origins / Lobby
+        WorldName = "Origins",
+        Missions = {
+            EggQuest    = 1,
+            RidingRing  = 10,
+        }
+    },
+
+       [3475397644] = { -- Origins / Lobby
+        WorldName = "Lobby",
+        Missions = {
+            EggQuest    = 1,
+            RidingRing  = 10,
+        }
+    },
+    [3475419198] = { -- Grassland
+        WorldName = "Grassland",
+        Missions = {
+            EggQuest        = 5,
+            KillMobs        = 15,
+            Harvest         = 50,
+            TreasureChest   = 3,
+        }
+    },
+
+    [3475422608] = { -- Jungle
+        WorldName = "Jungle",
+        Missions = {
+       EggQuest        = 5,
+            KillMobs        = 15,
+            Harvest         = 50,
+            TreasureChest   = 3,
+            KillBoss        = 1,
+            SpendTime       = 450,
+        }
+    },
+
+
+  [3487210751] = { -- Volcano
+        WorldName = "Volcano",
+        Missions = {
+            EggQuest        = 5,
+            KillMobs        = 15,
+            Harvest         = 50,
+            TreasureChest   = 3,
+            KillBoss        = 1,
+            SpendTime       = 450,
+        }
+    },
+
+    [3623549100] = { -- Volcano
+        WorldName = "Tundra",
+        Missions = {
+            EggQuest        = 5,
+            KillMobs        = 15,
+            Harvest         = 50,
+            TreasureChest   = 3,
+            KillBoss        = 1,
+            SpendTime       = 450,
+        }
+    },
+
+ 
+
+     [3737848045] = { -- Volcano
+        WorldName = "Ocean",
+        Missions = {
+            EggQuest        = 5,
+            KillMobs        = 15,
+            Harvest         = 50,
+            TreasureChest   = 3,
+            KillBoss        = 1,
+            SpendTime       = 450,
+        }
+    },
+       [3752680052] = { -- Volcano
+        WorldName = "Desert",
+        Missions = {
+            EggQuest        = 5,
+            KillMobs        = 15,
+            Harvest         = 50,
+            TreasureChest   = 3,
+            KillBoss        = 1,
+            SpendTime       = 450,
+        }
+    },
+       [4174118306] = { -- Volcano
+        WorldName = "Fantasy",
+        Missions = {
+            EggQuest        = 5,
+            KillMobs        = 15,
+            Harvest         = 50,
+            TreasureChest   = 3,
+            KillBoss        = 1,
+            SpendTime       = 450,
+        }
+    },
+       [4728805070] = { -- Volcano
+        WorldName = "Wasteland",
+        Missions = {
+            EggQuest        = 5,
+            KillMobs        = 15,
+            Harvest         = 50,
+            TreasureChest   = 3,
+            KillBoss        = 1,
+            SpendTime       = 450,
+        }
+    },
+       [4869039553] = { -- Volcano
+        WorldName = "Prehistoric",
+        Missions = {
+            EggQuest        = 5,
+            KillMobs        = 15,
+            Harvest         = 50,
+            TreasureChest   = 3,
+            KillBoss        = 1,
+            SpendTime       = 450,
+        }
+    },
+       [125804922932357] = { -- Volcano
+        WorldName = "Shinrin",
+        Missions = {
+            EggQuest        = 5,
+            KillMobs        = 15,
+            Harvest         = 50,
+            TreasureChest   = 3,
+            KillBoss        = 1,
+            SpendTime       = 450,
+        }
+    },
+}
+local function isWorldFullyCompletedById(placeId)
+    local config = WORLD_MISSION_REQUIREMENTS[placeId]
+    if not config then
+        warn("⚠️ ไม่มีข้อมูลเควสของโลกนี้:", placeId)
+        return false
+    end
+
+    local worldName = config.WorldName
+    local missionList = config.Missions
+
+    local ok, result = pcall(function()
+        local missionFolder = Player.Data.WorldMissions[worldName].Missions
+
+        for missionName, required in pairs(missionList) do
+            local mission = missionFolder:FindFirstChild(missionName)
+            if mission and mission:FindFirstChild("Progress") then
+                if mission.Progress.Value < required then
+                    return false
+                end
+            end
+        end
+
+        return true
+    end)
+
+    if not ok then
+        warn("⚠️ ตรวจเควสผิดพลาด:", worldName, result)
+        return false
+    end
+
+    return result
+end
+local function getNextUnfinishedWorld()
+    for _, worldName in ipairs(WORLD_ORDER) do
+        local placeId = WORLD_IDS[worldName]
+
+        if WORLD_MISSION_REQUIREMENTS[placeId] then
+            if not isWorldFullyCompletedById(placeId) then
+                return worldName, placeId
+            end
+        end
+    end
+
+    return nil, nil
+end
+local function teleportToNextNeededWorld()
+    local nextWorldName, nextPlaceId = getNextUnfinishedWorld()
+
+    if not nextWorldName then
+        print("🎉 ทุกโลกทำครบหมดแล้ว!")
+        return
+    end
+
+    print("🌍 วาร์ปไปโลกต่อไป:", nextWorldName, "→", nextPlaceId)
+
+    -- 👇 ใช้ Remote แบบที่คุณต้องการ
+    local args = {
+        nextPlaceId,
+        {}
+    }
+
+    local ok, result = pcall(function()
+        return ReplicatedStorage.Remotes.WorldTeleportRemote:InvokeServer(unpack(args))
+    end)
+
+    if ok then
+        print("🚀 วาร์ปสำเร็จ:", nextWorldName)
+    else
+        warn("❌ วาร์ปผิดพลาด:", result)
+    end
+end
+
+
+
+
+
+
+
+
+
+
+    ----------------------------------------------------
+    -- 🐉 ขี่ + ฟื้นมังกรอัตโนมัติ (ตรวจจาก workspace.Characters.PlayerName.Dragons)
+    ----------------------------------------------------
+
+    local player = game.Players.LocalPlayer
+    local char = player.Character or player.CharacterAdded:Wait()
+    local remotes = game:GetService("ReplicatedStorage"):WaitForChild("Remotes")
+
+    -- 🧩 โฟลเดอร์มังกรใน workspace
+    local dragonFolder = workspace:WaitForChild("Characters")
+        :WaitForChild(player.Name)
+        :WaitForChild("Dragons")
+
+    -- 🧩 ฟังก์ชันหามังกรตัวแรกใน Dragons
+    local function getAutoDragon()
+        local dragons = dragonFolder:GetChildren()
+        if #dragons > 0 then
+            return dragons[1]
+        else
+            return nil
+        end
+    end
+
+    -- 🧩 ฟังก์ชันฟื้นมังกร
+    local function reviveDragon(dragonModel)
+        local dragonName = dragonModel.Name
+        local deadFlag = dragonModel:FindFirstChild("Data") and dragonModel.Data:FindFirstChild("Dead")
+
+        if deadFlag and deadFlag.Value == true then
+            print("💀 มังกร", dragonName, "ตาย — กำลังฟื้นคืนชีพ...")
+            local args = { dragonName, "DragonRevivalHeart" }
+
+            local success, err = pcall(function()
+                remotes:WaitForChild("ReviveDragonRemote"):InvokeServer(unpack(args))
+            end)
+
+            if success then
+                print("❤️ ฟื้นมังกรสำเร็จ:", dragonName)
+                task.wait(1)
+            else
+                warn("❌ ฟื้นมังกรล้มเหลว:", err)
+            end
+        end
+    end
+
+    -- 🧠 ฟังก์ชันหลัก (ฟื้น + ขี่)
+    local function ensureMountedDragon()
+        local dragonModel = getAutoDragon()
+        if not dragonModel then
+            warn("❌ ไม่พบมังกรใน workspace.Characters." .. player.Name .. ".Dragons")
+            return
+        end
+
+        local targetName = dragonModel.Name
+
+        -- 🔍 ตรวจการตายของมังกรก่อน
+        reviveDragon(dragonModel)
+
+        -- ✅ ตรวจว่าเราขี่มังกรตัวนี้อยู่แล้วไหม
+        local humanoid = char:FindFirstChildOfClass("Humanoid")
+        local currentSeat = humanoid and humanoid.SeatPart
+        local currentMount = currentSeat and currentSeat:FindFirstAncestorWhichIsA("Model")
+
+        if currentMount and currentMount:IsDescendantOf(dragonFolder) and currentMount.Name == targetName then
+            return -- ขี่อยู่แล้ว
+        end
+
+        -- ✅ ถ้ายังไม่ได้ขี่ → เรียก Seat ใหม่
+        local seat = dragonModel:FindFirstChildWhichIsA("Seat", true)
+        if seat then
+            seat:Sit(humanoid)
+            print("🪶 ขี่มังกร:", targetName)
+
+            task.wait(1)
+            local flyBtn = player.PlayerGui
+                :WaitForChild("HUDGui")
+                .BottomFrame.CurrentDragonFrame.DragonControlsFrame.Other:FindFirstChild("Fly")
+
+            if flyBtn and flyBtn:FindFirstChild("MouseButton1Down") then
+                firesignal(flyBtn.MouseButton1Down)
+                print("🛫 บินแล้ว!")
+            end
+        else
+            warn("⚠️ ไม่พบ Seat ในมังกร:", targetName)
+        end
+    end
+
+    -- 🔁 ตรวจซ้ำทุก 1 วิ (ฟื้น + ขี่อัตโนมัติ)
+    task.spawn(function()
+        while true do
+            task.wait(1)
+            pcall(ensureMountedDragon)
+        end
+    end)
+
+    -- 🔁 ถ้าตายหรือรีสปาวน์ ให้เรียกใหม่
+    player.CharacterAdded:Connect(function(newChar)
+        task.wait(3)
+        char = newChar
+        pcall(ensureMountedDragon)
+    end)
+
+
+
+
+
+
+
+    local Players = game:GetService("Players")
+    local LocalPlayer = Players.LocalPlayer
+    local RunService = game:GetService("RunService")
+    local UIS = game:GetService("UserInputService")
+
+    ------------------------------------------------------------
+    -- ⚙️ ฟังก์ชันตรวจสอบและเปิด FlyControlUseSpace
+    ------------------------------------------------------------
+    local function enableFlyControlUseSpace()
+        local success, err = pcall(function()
+            -- หาเส้นทาง Setting
+            local data = LocalPlayer:WaitForChild("Data", 5)
+            if not data then 
+                warn("❌ ไม่พบ Data folder")
+                return 
+            end
+            
+            local settings = data:WaitForChild("Settings", 5)
+            if not settings then 
+                warn("❌ ไม่พบ Settings folder")
+                return 
+            end
+            
+            local flyControlValue = settings:FindFirstChild("FlyControlUseSpace")
+            if not flyControlValue then 
+                warn("❌ ไม่พบ FlyControlUseSpace")
+                return 
+            end
+            
+            -- ตรวจสอบและเปลี่ยนค่า
+            if flyControlValue.Value == true then
+                flyControlValue.Value = false
+                print("✅ เปิด FlyControlUseSpace = true แล้ว")
+            else
+                print("✅ FlyControlUseSpace เปิดอยู่แล้ว (true)")
+            end
+        end)
+        
+        if not success then
+            warn("❌ Error ตอนเช็ค FlyControlUseSpace:", err)
+        end
+    end
+
+    ------------------------------------------------------------
+    -- ⌨️ ฟังก์ชันจำลองการกดปุ่ม Q
+    ------------------------------------------------------------
+    local function pressQ()
+        -- จำลองการกดปุ่ม Q โดยใช้ VirtualInputManager
+        local VirtualInputManager = game:GetService("VirtualInputManager")
+        
+        -- กดปุ่ม Q ลง
+        VirtualInputManager:SendKeyEvent(true, Enum.KeyCode.Q, false, game)
+        
+        -- รอสักครู่
+        task.wait(0.05)
+        
+        -- ปล่อยปุ่ม Q
+        VirtualInputManager:SendKeyEvent(false, Enum.KeyCode.Q, false, game)
+        
+        print("⏫ กดปุ่ม Q")
+    end
+
+    ------------------------------------------------------------
+    -- 🛩️ ฟังก์ชันตรวจ Flying ของมังกร (กัน nil 100%)
+    ------------------------------------------------------------
+    local function getDragonFlyingState()
+        -- รอ Character ถ้าโหลดไม่ทัน
+        local char = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
+        if not char then return false end
+        
+        -- หาโฟลเดอร์ Dragons
+        local dragonsFolder = char:FindFirstChild("Dragons")
+        if not dragonsFolder then return false end
+        
+        -- วนหามังกรตัวที่มี Data.Flying
+        for _, dragon in ipairs(dragonsFolder:GetChildren()) do
+            if dragon:IsA("Model") then
+                local dataFolder = dragon:FindFirstChild("Data")
+                if dataFolder then
+                    local flyingValue = dataFolder:FindFirstChild("Flying")
+                    if flyingValue and flyingValue.Value ~= nil then
+                        return flyingValue.Value  -- true หรือ false
+                    end
+                end
+            end
+        end
+        
+        return false
+    end
+
+    ------------------------------------------------------------
+    -- 🔄 เริ่มระบบเฝ้าดูและกดปุ่ม Q อัตโนมัติ
+    ------------------------------------------------------------
+    local function startFlyingMonitor()
+        task.spawn(function()
+            while true do
+                task.wait(0.5)  -- ลดเวลา wait เหลือ 0.5 วินาทีเพื่อตอบสนองเร็วขึ้น
+                
+                local isFlying = false
+                local ok, result = pcall(function()
+                    return getDragonFlyingState()
+                end)
+                
+                if ok then
+                    isFlying = result
+                else
+                    warn("❌ getDragonFlyingState Error:", result)
+                end
+                
+                if not isFlying then
+                    print("⚠️ มังกรตก / ไม่บิน → กดปุ่ม Q!")
+                    
+                    -- ลองกด Q 2 ครั้ง เพื่อให้แน่ใจ
+                    pressQ()
+                    task.wait(0.1)
+                    pressQ()
+                else
+                    print("🟢 Flying = true")
+                end
+            end
+        end)
+    end
+
+    ------------------------------------------------------------
+    -- 🚀 เริ่มระบบทั้งหมด
+    ------------------------------------------------------------
+    print("🚀 เริ่มระบบกดปุ่ม Q อัตโนมัติเมื่อมังกรไม่บิน")
+
+    -- ขั้นตอนที่ 1: ตรวจสอบและเปิด FlyControlUseSpace ก่อน
+    enableFlyControlUseSpace()
+
+    -- รอสักครู่ให้ Setting อัพเดท
+    task.wait(0.5)
+
+    -- ขั้นตอนที่ 2: เริ่มระบบเฝ้าดู
+    startFlyingMonitor()
+
+
+
+
+
+
+    ---------------------------------------------------
+    -- 🌍 GET CURRENT WORLD NAME
+    ------------------------------------------------------------
+    local function getWorldNameById(id)
+        for name, wid in pairs(WORLD_IDS) do
+            if wid == id then return name end
+        end
+        return nil
+    end
+
+    local currentWorldName = getWorldNameById(game.PlaceId)
+    if not currentWorldName then
+        warn("❌ โลกนี้ไม่มีในระบบ WORLD_IDS:", game.PlaceId)
+        return
+    end
+
+    local function getMissionValue(missionName)
+        local ok, result = pcall(function()
+            return Player.Data.WorldMissions[currentWorldName].Missions[missionName].Progress.Value
+        end)
+        return ok and result or 0
+    end
+
+    local function isMissionDone(missionName, required)
+        return getMissionValue(missionName) >= required
+    end
+
+    ------------------------------------------------------------
+    -- 🌟 AUTO MISSION SHORTCUT FUNCTIONS
+    ------------------------------------------------------------
+    local function isEggDone()           return isMissionDone("EggQuest", 5) end
+    local function isKillDone()          return isMissionDone("KillMobs", 15) end
+    local function isHarvestDone()       return isMissionDone("Harvest", 50) end
+    local function isTreasureDone()      return isMissionDone("TreasureChest", 3) end
+    local function isKillBossDone()      return isMissionDone("KillBoss", 1) end
+    local function isSpendTimeDone()     return isMissionDone("SpendTime", 450) end
+
+    ------------------------------------------------------------
+    -- 🌟 Progress Getter Functions (Optional)
+    ------------------------------------------------------------
+    local function getEggProgress()      return getMissionValue("EggQuest") end
+    local function getKillProgress()     return getMissionValue("KillMobs") end
+    local function getHarvestProgress()  return getMissionValue("Harvest") end
+    local function getTreasureProgress() return getMissionValue("TreasureChest") end
+    local function getKillBossProgress() return getMissionValue("KillBoss") end
+    local function getSpendTimeProgress()return getMissionValue("SpendTime") end
+
+    local function getNextWorldId(currentWorld)
+        for i = 1, #WORLD_ORDER do
+            if WORLD_ORDER[i] == currentWorld then
+                local nextIndex = i + 1
+                if nextIndex <= #WORLD_ORDER then
+                    local nextWorldName = WORLD_ORDER[nextIndex]
+                    return WORLD_IDS[nextWorldName]
+                end
+            end
+        end
+        return nil
+    end
+
+    local function teleportToNextWorldAuto()
+        local currentId = game.PlaceId
+        local currentWorldName = getWorldNameById(currentId)
+        if not currentWorldName then
+            warn("❌ ไม่พบชื่อโลกสำหรับ ID:", currentId)
+            return
+        end
+
+        local nextId = getNextWorldId(currentWorldName)
+        if not nextId then
+            print("🎉 ถึงโลกสุดท้ายแล้ว ไม่มีโลกถัดไป")
+            return
+        end
+
+        print("🌍 เตรียมวาร์ป:", currentWorldName, "→ ไปยังโลกถัดไป:", nextId)
+
+        local remotes = ReplicatedStorage:WaitForChild("Remotes")
+        local ok, result = pcall(function()
+            return remotes:WaitForChild("WorldTeleportRemote"):InvokeServer(nextId, {})
+        end)
+
+        if ok then
+            print("🚀 วาร์ปไปยังโลกใหม่สำเร็จ →", nextId)
+        else
+            warn("❌ วาร์ปผิดพลาด:", result)
+        end
+    end
+
+
+    -----------
+    ---
+    ---
+    ----------------------------------------------------
+    -- 🥚 PART 1 : GRASSLAND EGG QUEST (5/5)
+    ------------------------------------------------------------
+    local function tpToGrassEgg()
+        if isEggDone() then return end
+
+        print("🥚 กำลังค้นหาไข่...")
+
+        local folder =
+            Workspace:FindFirstChild("Interactions")
+            and Workspace.Interactions.Nodes
+            and Workspace.Interactions.Nodes:FindFirstChild("Eggs")
+            and Workspace.Interactions.Nodes.Eggs:FindFirstChild("ActiveNodes")
+
+        if not folder then return end
+
+        for _, node in ipairs(folder:GetChildren()) do
+            if isEggDone() then break end
+
+            local egg = node:FindFirstChild("EggModel")
+            if egg and egg:FindFirstChild("Harvested") and not egg.Harvested.Value then
+                local tp = egg.PrimaryPart or egg:FindFirstChildWhichIsA("BasePart")
+                if tp then
+                    HRP.CFrame = tp.CFrame + Vector3.new(0,4,0)
+                    egg.Harvested.Value = true
+                    task.wait(5)
+                end
+            end
+        end
+    end
+
+    local function startEggQuest()
+        if isEggDone() then
+            print("🥚 ข้าม: เควสไข่เสร็จแล้ว!")
+            return
+        end
+
+        print("🔥 เริ่มเควสไข่ (0/5)")
+
+        while not isEggDone() do
+            tpToGrassEgg()
+            task.wait(1)
+        end
+
+        print("🎉 เควสไข่เสร็จสมบูรณ์! (5/5)")
+    end
+
+
+
+    ------------------------------------------------------------
+    -- ⚔️ PART 2 : AUTO DETECT & KILL 15 MOBS
+    ------------------------------------------------------------
+    local function detectGrasslandMobs()
+        local folder = Workspace:FindFirstChild("MobFolder")
+        if not folder then return {} end
+
+        local detected = {}
+        for _, mobGroup in ipairs(folder:GetChildren()) do
+            for _, obj in ipairs(mobGroup:GetChildren()) do
+                if (obj:IsA("Model") or obj:IsA("BasePart")) and obj:FindFirstChild("Health") then
+                    table.insert(detected, obj.Name)
+                end
+            end
+        end
+        return detected
+    end
+
+    local TARGET_MOBS = detectGrasslandMobs()
+    if #TARGET_MOBS == 0 then warn("❌ ไม่มี Mob") return end
+
+    local function GetDragon()
+        local dragons = Character:FindFirstChild("Dragons")
+        if not dragons then return nil end
+
+        for _, d in ipairs(dragons:GetChildren()) do
+            if d:IsA("Model") and d:FindFirstChild("Remotes") then
+                return d
+            end
+        end
+    end
+
+    local function teleportTo(pos)
+        Character:PivotTo(CFrame.new(pos + Vector3.new(0,3,0)))
+    end
+
+    local function performBreath()
+        local dragon = GetDragon()
+        if not dragon then return end
+        local fire = dragon.Remotes:FindFirstChild("BreathFireRemote")
+        if fire then for _=1,3 do fire:FireServer(true) end end
+        VirtualInputManager:SendKeyEvent(true, Enum.KeyCode.F, false, game)
+        task.wait(0.05)
+        VirtualInputManager:SendKeyEvent(false, Enum.KeyCode.F, false, game)
+    end
+
+    local function getMobPosition(m)
+        if m:IsA("Model") then
+            if m.PrimaryPart then return m.PrimaryPart.Position end
+            local p = m:FindFirstChildWhichIsA("BasePart", true)
+            if p then return p.Position end
+        else
+            return m.Position
+        end
+    end
+
+    local function findMob()
+        local folder = Workspace:FindFirstChild("MobFolder")
+        if not folder then return nil end
+
+        for _, mobGroup in ipairs(folder:GetChildren()) do
+            for _, name in ipairs(TARGET_MOBS) do
+                local mob = mobGroup:FindFirstChild(name)
+                if mob and mob.Health.Value > 0 then
+                    return mob
+                end
+            end
+        end
+        return nil
+    end
+
+    local function attackMob(mob)
+        local dragon = GetDragon()
+        if not dragon then return end
+        local remote = dragon.Remotes:FindFirstChild("PlaySoundRemote")
+        if not remote then return end
+
+        task.spawn(function()
+            while mob.Health.Value > 0 do
+                remote:FireServer("Breath","Mobs",mob)
+                RunService.Heartbeat:Wait()
+            end
+        end)
+    end
+
+    local function startKillQuest()
+        if isKillDone() then
+            print("⚔️ ข้าม: เควสฆ่ามอนเสร็จแล้ว!")
+            return
+        end
+
+        print("⚔️ เริ่มฆ่ามอน (0/15)")
+
+        while not isKillDone() do
+            local mob = findMob()
+            if mob then
+                teleportTo( getMobPosition(mob) )
+                attackMob(mob)
+                performBreath()
+
+                while mob.Health.Value > 0 do task.wait(0.05) end
+
+                print("💀 Progress:", getKillProgress() .. "/15")
+            end
+            task.wait(0.1)
+        end
+
+        print("🎉 ฆ่ามอนครบ 15/15")
+    end
+
+
+
+
+    ------------------------------------------------------------
+    -- 🍓 ดูดผลไม้ทั้งหมดรอบตัว (แก้ใหม่ ทำงาน 100%)
+    ------------------------------------------------------------
+    local function collectFoodItems()
+        local cam = workspace:FindFirstChild("Camera")
+        if not cam then return end
+        if not HRP then return end
+
+        local foodNames = {
+            "AppleFoodModel","LemonFoodModel","CornFoodModel","CarrotFoodModel","PearFoodModel",
+            "StrawberryFoodModel","PeachFoodModel","PotatoFoodModel","BroccoliFoodModel","CherryFoodModel",
+            "BuleberryFoodModel","MushroomFoodModel","BananaFoodModel","AlmondFoodModel","OnionFoodModel",
+            "KelpFoodModel","GrapesFoodModel","WatermelonFoodModel","PricklyPearFoodModel","ChiliFoodModel",
+            "GlowingMushroomFoodModel","PineappleFoodModel","CottonCandyFoodModel","JuniperBerryFoodModel",
+            "LimeFoodModel","DragonfruitFoodModel","AvacadoFoodModel","CacaoBeanFoodModel",
+            "CoconutFoodModel","EdamameFoodModel","KajiFruitFoodModel","MistSudachiFoodModel",
+            "PumpkinFoodModel"
+        }
+
+        for _, item in ipairs(cam:GetChildren()) do
+            if table.find(foodNames, item.Name) then
+                
+                -- ย้ายทุก BasePart ของผลไม้มาที่ตัวเรา
+                for _, part in ipairs(item:GetDescendants()) do
+                    if part:IsA("BasePart") then
+                        part.CFrame = HRP.CFrame
+                    end
+                end
+            end
+        end
+    end
+
+
+    ------------------------------------------------------------
+    -- 🐲 หารีโมทมังกรตัวไหนก็ได้ (ไม่ล็อกเลข)
+    ------------------------------------------------------------
+    local function getAnyDragonRemote()
+        local dragons = Player.Character:WaitForChild("Dragons")
+
+        for _, dragon in ipairs(dragons:GetChildren()) do
+            if dragon:IsA("Model") and dragon:FindFirstChild("Remotes") then
+                local remote = dragon.Remotes:FindFirstChild("PlaySoundRemote")
+                if remote then
+                    return remote, dragon
+                end
+            end
+        end
+
+        return nil, nil
+    end
+
+
+
+    local SEARCH_POINTS = {
+        Vector3.new(1335, 193, -254),
+        Vector3.new(134, 73, -139),
+        Vector3.new(-722, 9, 247),
+        Vector3.new(444, 261, 615),
+        Vector3.new(-28, 368, -181),
+    }
+
+    local function teleportRandomSearchPoint()
+        if not HRP then return end
+        local pos = SEARCH_POINTS[math.random(1, #SEARCH_POINTS)]
+        HRP.CFrame = CFrame.new(pos + Vector3.new(0, 5, 0))
+        print("🔍 วาร์ปค้นหาต้นไม้ที่:", pos)
+    end
+
+    ------------------------------------------------------------
+    -- 🌲 ตีต้นไม้
+    ------------------------------------------------------------
+    local function attackFoodNodes()
+        if isHarvestDone() then
+            print("🌳 ข้าม: Harvest เสร็จแล้ว!")
+            return
+        end
+
+        local folder = Workspace.Interactions.Nodes:FindFirstChild("Food")
+        if not folder then
+            warn("❌ ไม่พบโฟลเดอร์ Food")
+            return
+        end
+
+        print("🌳 เริ่ม Harvest (0/50)")
+
+        while not isHarvestDone() do
+
+            local foundTree = false
+
+            for _, node in ipairs(folder:GetChildren()) do
+                if isHarvestDone() then break end
+
+                local b = node:FindFirstChild("BillboardPart")
+                local hp = b and b:FindFirstChild("Health")
+
+                if b and hp and hp.Value > 0 then
+                    foundTree = true
+
+                    HRP.CFrame = b.CFrame + Vector3.new(0,6,0)
+                    print("🌲 ตีต้นไม้:", node.Name)
+
+                    while hp.Value > 0 and not isHarvestDone() do
+
+                        -- ใช้มังกรตัวไหนก็ได้
+                        local remote, dragon = getAnyDragonRemote()
+                        if remote then
+                            remote:FireServer("Breath","Destructibles", b)
+                        end
+
+                        -- ดูดผลไม้
+                        collectFoodItems()
+
+                        task.wait(0.15)
+                    end
+
+                    print("🌲 Harvest:", getHarvestProgress() .. "/50")
+                    task.wait(1)
+                end
+            end
+
+            ------------------------------------------------
+            -- ⭐ ถ้าไม่เจอต้นไม้ → Auto Teleport
+            ------------------------------------------------
+            if not foundTree then
+                print("⚠️ ไม่พบต้นไม้ → วาร์ปหาจุดใหม่...")
+                teleportRandomSearchPoint()
+                task.wait(1.5)
+            end
+        end
+
+        print("🎉 Harvest ครบ 50 แล้ว!")
+    end
+
+
+    ------------------------------------------------------------
+    -- ⚔️ ADVANCED MOB FINDER (ตรวจครบทุกเส้นทาง)
+    ------------------------------------------------------------
+    local function ultraFindMob()
+        local mobs = {}
+
+        -- เส้นทาง 1 : MobFolder ทั่วเกม
+        local folder = Workspace:FindFirstChild("MobFolder")
+        if folder then
+            for _, mobGroup in ipairs(folder:GetChildren()) do
+                for _, mobName in ipairs(TARGET_MOBS) do
+                    local mob = mobGroup:FindFirstChild(mobName)
+                    if mob and mob:FindFirstChild("Health") and mob.Health.Value > 0 then
+                        table.insert(mobs, mob)
+                    end
+                end
+            end
+        end
+
+        -- เส้นทาง 2 : ActiveMobs (บางเซิร์ฟเวอร์ spawn ตาม Global)
+        local activePath =
+            Workspace:FindFirstChild("Interactions")
+            and Workspace.Interactions:FindFirstChild("Nodes")
+            and Workspace.Interactions.Nodes:FindFirstChild("Mobs")
+            and Workspace.Interactions.Nodes.Mobs:FindFirstChild("ActiveMobs")
+            and Workspace.Interactions.Nodes.Mobs.ActiveMobs:FindFirstChild("Global")
+
+        if activePath then
+            for _, obj in ipairs(activePath:GetChildren()) do
+                if obj:FindFirstChild("Health") and obj.Health.Value > 0 then
+                    table.insert(mobs, obj)
+                end
+            end
+        end
+
+        if #mobs == 0 then return nil end
+
+        -- เลือกตัวที่ใกล้สุด
+        table.sort(mobs, function(a,b)
+            local pa = getMobPosition(a)
+            local pb = getMobPosition(b)
+            if not pa or not pb then return false end
+            return (pa - HRP.Position).Magnitude < (pb - HRP.Position).Magnitude
+        end)
+
+        return mobs[1]
+    end
+
+
+    ------------------------------------------------------------
+    -- ⚡ SUPER FAST ATTACK (ยิง PlaySoundRemote ใส่ Mob แบบโหด)
+    ------------------------------------------------------------
+    local function ultraAttackMob(mob)
+        local dragon = GetDragon()
+        if not dragon then return end
+
+        local remote = dragon.Remotes:FindFirstChild("PlaySoundRemote")
+        if not remote then return end
+
+        task.spawn(function()
+            while mob and mob:FindFirstChild("Health") and mob.Health.Value > 0 do
+                remote:FireServer("Breath","Mobs",mob)
+                RunService.Heartbeat:Wait() -- แรง เร็ว เสถียร
+            end
+        end)
+    end
+
+    local function startKillQuest()
+        if isKillDone() then
+            print("⚔️ ข้าม: เควสฆ่ามอนเสร็จแล้ว!")
+            return
+        end
+
+        print("⚔️ เริ่มฆ่ามอน (0/15)")
+
+        while not isKillDone() do
+            local mob = ultraFindMob()
+            if mob then
+                teleportTo( getMobPosition(mob) )
+                ultraAttackMob(mob)
+                performBreath()
+
+                while mob and mob.Health.Value > 0 do task.wait(0.05) end
+
+                print("💀 Progress:", getKillProgress() .. "/15")
+            else
+                print("❌ ไม่พบมอน → รอ Spawn")
+                task.wait(1)
+            end
+
+            task.wait(0.1)
+        end
+
+        print("🎉 ฆ่ามอนครบ 15/15")
+    end
+
+
+
+
+    ------------------------------------------------------------
+    -- 💎 0) TREASURE PROGRESS CHECK
+    ------------------------------------------------------------
+
+
+    ------------------------------------------------------------
+    -- 💎 1) รายชื่อกล่องสมบัติ
+    ------------------------------------------------------------
+    local itemNames = {
+        "SilverChest",
+        "BronzeChest",
+        "GoldChest",
+        "SpookyChest",
+        "AspookyChest"
+    }
+
+
+    ------------------------------------------------------------
+    -- ✈️ 2) จุดวาร์ปวนหา (แก้ตามต้องการ)
+    ------------------------------------------------------------
+    local teleportPoints = {
+        Vector3.new(1335, 193, -254),
+        Vector3.new(134, 73, -139),
+        Vector3.new(-722, 9, 247),
+        Vector3.new(444, 261, 615),
+    }
+
+    local scanning = false
+    local currentIndex = 1
+
+
+    ------------------------------------------------------------
+    -- ✈️ 3) วาร์ปวนหา ACTIVE CHEST
+    ------------------------------------------------------------
+    function startOrbitScan()
+        if scanning then return end
+        scanning = true
+        print("🚀 เริ่มวาร์ปตามจุดเพื่อค้นหากล่อง...")
+
+        task.spawn(function()
+            while scanning and not isTreasureDone() do
+                local char = Player.Character or Player.CharacterAdded:Wait()
+                local hrp = char:WaitForChild("HumanoidRootPart")
+
+                local targetPos = teleportPoints[currentIndex]
+                if targetPos then
+                    hrp.CFrame = CFrame.new(targetPos + Vector3.new(0, 5, 0))
+                    print("📍 วาร์ปไปจุดที่:", currentIndex)
+                end
+
+                currentIndex += 1
+                if currentIndex > #teleportPoints then
+                    currentIndex = 1
+                end
+
+                task.wait(1)
+            end
+        end)
+    end
+
+    function stopOrbitScan()
+        if not scanning then return end
+        scanning = false
+        print("🛑 หยุดระบบวาร์ปค้นหาแล้ว")
+    end
+
+
+    ------------------------------------------------------------
+    -- 🔍 4) ค้นหากล่องสมบัติสด (ยังไม่ Dead)
+    ------------------------------------------------------------
+    function findItemsByName(names)
+        names = names or itemNames
+
+        if type(names) ~= "table" then
+            warn("❌ itemNames ไม่ใช่ table")
+            return {}
+        end
+
+        local foundItems = {}
+        local treasureRoot = workspace:FindFirstChild("Interactions")
+            and workspace.Interactions:FindFirstChild("Nodes")
+            and workspace.Interactions.Nodes:FindFirstChild("Treasure")
+
+        if not treasureRoot then
+            return foundItems
+        end
+
+        for i = 1, 100 do
+            local node = treasureRoot:FindFirstChild(tostring(i))
+            if node then
+                for _, name in ipairs(names) do
+                    local chest = node:FindFirstChild(name)
+                    if chest and chest:FindFirstChild("HumanoidRootPart") then
+                        local hrp = chest.HumanoidRootPart
+
+                        -- เช็ค Dead
+                        local dead = hrp:FindFirstChild("Dead")
+                        if dead and not dead.Value then
+                            table.insert(foundItems, hrp)
+                        end
+                    end
+                end
+            end
+        end
+
+        return foundItems
+    end
+
+
+    ------------------------------------------------------------
+    -- 🧭 5) วาร์ปไปที่กล่อง
+    ------------------------------------------------------------
+    function teleportToItem(item)
+        local char = Player.Character
+        if char and char.PrimaryPart and item then
+            char:SetPrimaryPartCFrame(item.CFrame * CFrame.new(0, 5, 0))
+            print("📦 วาร์ปไปที่กล่อง:", item.Parent.Name)
+        end
+    end
+
+
+    ------------------------------------------------------------
+    -- ⚙️ 6) ตั้ง Dead = true
+    ------------------------------------------------------------
+    function setItemDead(item)
+        if not item or not item.Parent then return end
+
+        local dead = item.Parent.HumanoidRootPart:FindFirstChild("Dead")
+        if dead then
+            dead.Value = true
+            print("☠️ ตั้ง Dead ให้กล่อง:", item.Parent.Name)
+        end
+    end
+
+    local function teleportToNextWorld()
+        teleportToNextWorldAuto()
+    end
+    ------------------------------------------------------------
+    -- 💎 7) AUTO TREASURE (ฟาร์มจน Progress = 3)
+    ------------------------------------------------------------
+    function startAutoTeleportTreasure()
+        autoTeleportTreasure = true
+        print("💎 เริ่มเควส Treasure Chest (0/3)...")
+
+        local lastCheck = os.clock()
+
+        task.spawn(function()
+            while autoTeleportTreasure and not isTreasureDone() do
+
+                if os.clock() - lastCheck >= 1 then
+                    lastCheck = os.clock()
+
+                    local items = findItemsByName(itemNames)
+
+                    if #items > 0 then
+                        stopOrbitScan()
+
+                        local target = items[1]
+                        local dead = target:FindFirstChild("Dead")
+
+                        if dead and not dead.Value then
+                            teleportToItem(target)
+                            setItemDead(target)
+                            print("💎 เก็บเพิ่ม! เควส:", getTreasureProgress(), "/3")
+                            task.wait(3)
+                        end
+
+                    else
+                        if not scanning then
+                            print("🔎 ไม่พบกล่อง → เริ่มวาร์ปหา...")
+                            startOrbitScan()
+                        end
+                    end
+                end
+
+                RunService.Heartbeat:Wait()
+            end
+
+            if isTreasureDone() then
+                autoTeleportTreasure = false
+                stopOrbitScan()
+                print("🎉 เควส Treasure Chest เสร็จแล้ว! (3/3)")
+            end
+        end)
+    end
+
+
+    function stopAutoTeleportTreasure()
+        autoTeleportTreasure = false
+        stopOrbitScan()
+
+    end
+
+
+
+    -- 🧱 SERVICES
+    local Players = game:GetService("Players")
+    local ReplicatedStorage = game:GetService("ReplicatedStorage")
+    local Workspace = game:GetService("Workspace")
+    local RunService = game:GetService("RunService")
+
+    local Player = Players.LocalPlayer
+
+    -- ⚙️ SETTINGS
+    local ATTACKS_PER_CYCLE = 50
+    local MAX_FARM_RANGE = 350
+    local WORLD_TARGETS = {
+        [3475397644] = {"Boar", "BoarElite", "Falcon", "Owl", "OwlSnow"},
+        [3475419198] = {"BoarElite", "Falcon", "Owl", "OwlSnow","Boar"},
+        [3475422608] = {"CaveBat", "Crocodile", "Monkey"},
+        [3487210751] = {"Elemental", "Gargoyle", "Salamander"},
+        [3623549100] = {"Eagle", "SnowBoar","OwlSnow"},
+        [3737848045] = {"Crab", "Lionfish", "Pufferfish"},
+        [3752680052] = {"DesertScarab", "Scorpion", "Vulture"},
+        [4174118306] = {"Hydra", "Mimic", "MythicalDeer"},
+        [4728805070] = {"MantaRay", "Slime"},
+        [4869039553] = {"Dimorph", "Ptero", "Stego"},
+        [125804922932357] = {"EliteKappa","EliteKitsuneFox","EliteWanyudo","Kappa","KiriFogGhost","KitsuneFox","Wanyudo"}
+    }
+
+    -- 🔴 CONTROL FLAG
+    local stopAll = false
+
+    -- 🚫 SAFE DESTROY OLD REMOTE
+    pcall(function()
+        local remotes = ReplicatedStorage:FindFirstChild("Remotes")
+        if remotes then
+            local target = remotes:FindFirstChild("MobDamageRemote")
+            if target then target:Destroy() end
+        end
+    end)
+
+    --========================================================--
+    -- 🔍 ตรวจสอบเควส KillBoss (Desert) ว่าเสร็จหรือยัง
+    --========================================================--
+
+
+    -- 🐲 GET ANY DRAGON
+    local function GetAnyDragon()
+        local char = Player.Character or Player.CharacterAdded:Wait()
+        local dragons = char:FindFirstChild("Dragons")
+        if not dragons then return nil end
+        for _, dragon in pairs(dragons:GetChildren()) do
+            if dragon:IsA("Model") and dragon:FindFirstChild("Remotes") and dragon.Remotes:FindFirstChild("PlaySoundRemote") then
+                return dragon
+            end
+        end
+        return nil
+    end
+
+    -- 📦 TELEPORT (SAFE)
+    local function teleportToPosition(pos)
+        local char = Player.Character
+        if char and char.PrimaryPart then
+            local dist = (char.PrimaryPart.Position - pos).Magnitude
+            if dist > 5 then
+                for _, part in ipairs(char:GetDescendants()) do
+                    if part:IsA("BasePart") then part.CanCollide = false end
+                end
+                char:PivotTo(CFrame.new(pos))
+                task.wait(math.clamp(dist / 150, 0.1, 1))
+                for _, part in ipairs(char:GetDescendants()) do
+                    if part:IsA("BasePart") then part.CanCollide = true end
+                end
+            end
+        end
+    end
+
+    -- 🦴 ATTACK MOB
+    local function hyperAttackMob(mob, dragon)
+        local remote = dragon.Remotes:FindFirstChild("PlaySoundRemote")
+        if not remote then return end
+        task.spawn(function()
+            for i = 1, ATTACKS_PER_CYCLE do
+                if stopAll then break end
+                pcall(function()
+                    remote:FireServer("Breath", "Mobs", mob)
+                end)
+                if mob:FindFirstChild("Health") and mob.Health.Value <= 0 then break end
+                RunService.Heartbeat:Wait()
+            end
+        end)
+    end
+
+    -- 🔍 FIND MOB WITH HEALTH
+    local function findMobWithHealth()
+        local folder = workspace:FindFirstChild("MobFolder")
+        local root = Player.Character and Player.Character:FindFirstChild("HumanoidRootPart")
+        if not folder or not root then return nil end
+
+        local currentWorldId = game.PlaceId
+        local mobList = WORLD_TARGETS[currentWorldId]
+
+        if not mobList then
+            warn("❌ โลกนี้ยังไม่ได้กำหนดมอน")
+            return nil
+        end
+
+        for _, mobGroup in pairs(folder:GetChildren()) do
+            for _, mobName in pairs(mobList) do
+                local mob = mobGroup:FindFirstChild(mobName)
+                if mob and mob:FindFirstChild("Health") and mob.Health.Value > 0 then
+                    local pos = mob:IsA("Model") and mob.PrimaryPart and mob.PrimaryPart.Position or (mob:IsA("BasePart") and mob.Position)
+                    if pos and (pos - root.Position).Magnitude <= MAX_FARM_RANGE then
+                        return mob
+                    end
+                end
+            end
+        end
+        return nil
+    end
+    -- 🛠️ START BOSS FIGHT (เวอร์ชันแก้ใหม่: ถ้าตีไม่เข้า 2 วิ → ไปตีม็อบ)
+    local function startBossFight()
+        print("🔥 เริ่มระบบ Boss Fight แบบอัจฉริยะ...")
+
+        if isKillBossDone() then
+            print("🎉 เควส KillBoss เสร็จแล้ว (1/1)! ข้ามบอส")
+            return
+        end
+
+        -- ▶️ สร้างคิว
+        pcall(function()
+            ReplicatedStorage.Remotes.CreateBossQueueRemote:InvokeServer("NoOne")
+        end)
+        task.wait(5)
+
+        -- ▶️ เริ่มบอส
+        pcall(function()
+            ReplicatedStorage.Remotes.StartBossQueueRemote:InvokeServer()
+        end)
+        task.wait(15)
+
+        -- หาโมเดลบอส
+        local bossModels = Workspace:FindFirstChild("ActiveBossModels")
+        if not bossModels then warn("❌ ไม่พบบอส") return end
+
+        local targetModel
+        for _, m in ipairs(bossModels:GetChildren()) do
+            if m:FindFirstChild("HumanoidRootPart") then
+                targetModel = m
+                break
+            end
+        end
+        if not targetModel then warn("❌ ไม่มี HRP บอส") return end
+
+        -- HP path
+        local bossName = targetModel.Name
+        local bossHP = Workspace.Interactions.Boss.BossInstances:FindFirstChild(bossName)
+        if not bossHP or not bossHP:FindFirstChild("Health") then
+            warn("❌ ไม่มีข้อมูล HP บอส")
+            return
+        end
+
+        -- Remote
+        local dragon = GetAnyDragon()
+        if not dragon then warn("❌ ไม่มีมังกร") return end
+
+        local remote = dragon.Remotes:FindFirstChild("PlaySoundRemote")
+        if not remote then warn("❌ ไม่มี PlaySoundRemote") return end
+
+        local bossHRP = targetModel.HumanoidRootPart
+        local lastHP = bossHP.Health.Value
+
+        -- ⏱ ตัวจับเวลา HP ไม่ลด
+        local noDamageTime = 0
+        local mode = "BOSS"  -- มี 2 โหมด: "BOSS" และ "MOB"
+
+        print("⚔️ เริ่มโจมตีบอสแบบวาร์ปติดตัว...")
+
+        -- 🔥 Loop หลัก
+        while bossHP.Health.Value > 0 and not isKillBossDone() do
+
+            -----------------------------
+            -- 📌 โหมด 1: ตีบอสโดยตรง
+            -----------------------------
+            if mode == "BOSS" then
+                
+                -- วาร์ปติดบอส
+                if Player.Character and Player.Character.PrimaryPart then
+                    teleportToPosition(bossHRP.Position + Vector3.new(0, 4, 0))
+                end
+
+                -- ยิงรัว
+                pcall(function()
+                    remote:FireServer("Breath", "Bosses", bossHRP)
+                end)
+
+                -- ตรวจ HP
+                if bossHP.Health.Value == lastHP then
+                    noDamageTime += 0.1
+                else
+                    noDamageTime = 0
+                end
+
+                -- ถ้า 2 วิไม่ลด → เปลี่ยนโหมดไปตีม็อบ
+                if noDamageTime >= 2 then
+                    print("⚠️ 2 วิไม่เข้า → ไปตีม็อบแก้ค้าง!")
+                    mode = "MOB"
+                end
+
+            end
+
+            -----------------------------
+            -- 📌 โหมด 2: ไปตีม็อบจนบอสเสียเลือด
+            -----------------------------
+            if mode == "MOB" then
+
+                local mob = findMobWithHealth()
+                local d = GetAnyDragon()
+
+                if mob and d then
+                    local mobPos = mob:IsA("Model") and mob.PrimaryPart.Position or mob.Position
+
+                    teleportToPosition(mobPos)
+                    hyperAttackMob(mob, d)
+                    task.wait(0.5)
+                end
+
+                -- เงื่อนไขกลับไปตีบอส
+                if bossHP.Health.Value < lastHP then
+                    print("💥 บอสกลับมาโดนดาเมจ → กลับไปตีบอส!")
+                    mode = "BOSS"
+                    noDamageTime = 0
+                end
+            end
+
+            lastHP = bossHP.Health.Value
+            task.wait(0.1)
+        end
+
+        print("🛑 จบการต่อสู้กับบอสแล้ว!")
+
+        if isKillBossDone() then
+            print("🏆 เควส KillBoss เสร็จสมบูรณ์!")
+        end
+    end
+
+
+
+
+
+
+    ------------------------------------------------------------
+    -- ⏳ WAIT FOR SpendTime (450) THEN TP
+    ------------------------------------------------------------
+    local function waitSpendTimeThenTP()
+        print("⏳ รอ SpendTime Volcano ครบ 450 ...")
+
+        while not isSpendTimeDone() do
+            print("⏳ SpendTime:", getSpendTimeProgress(), "/450")
+            task.wait(3)
+        end
+
+        print("🎉 SpendTime ครบ 450 แล้ว! → วาร์ปไปโลกถัดไป...")
+    
+    end
+
+    task.spawn(function()
+
+        print("🚀 เริ่มระบบ Volcano FULL AUTO")
+
+        ----------------------------------------------------
+        -- 1) Egg
+        ----------------------------------------------------
+        if not isEggDone() then
+            startEggQuest()
+            while not isEggDone() do task.wait(1) end
+        end
+        print("🥚 Egg ✔")
+
+        ----------------------------------------------------
+        -- 2) Kill mobs
+        ----------------------------------------------------
+        if not isKillDone() then
+            startKillQuest()
+            while not isKillDone() do task.wait(1) end
+        end
+        print("⚔️ Kill Mobs ✔")
+
+        ----------------------------------------------------
+        -- 3) Harvest
+        ----------------------------------------------------
+        if not isHarvestDone() then
+            attackFoodNodes()
+            while not isHarvestDone() do task.wait(1) end
+        end
+        print("🌳 Harvest ✔")
+
+        ----------------------------------------------------
+        -- 4) Treasure Chest
+        ----------------------------------------------------
+        if not isTreasureDone() then
+            startAutoTeleportTreasure()
+            while not isTreasureDone() do task.wait(1) end
+            stopAutoTeleportTreasure()
+        end
+        print("💎 Treasure ✔")
+
+        ----------------------------------------------------
+        -- 5) Kill Boss (Volcano)
+        ----------------------------------------------------
+        if not isKillBossDone() then
+            startBossFight()
+            while not isKillBossDone() do task.wait(1) end
+        end
+        print("🐉 Kill Boss ✔")
+
+        ----------------------------------------------------
+        -- 6) SpendTime 450
+        ----------------------------------------------------
+        if not isSpendTimeDone() then
+            print("⏳ รอ SpendTime Volcano ครบ 450 ...")
+            while not isSpendTimeDone() do
+                print("⏳ SpendTime:", getSpendTimeProgress(), "/450")
+                task.wait(3)
+            end
+        end
+        print("⏳ SpendTime ✔")
+
+        ----------------------------------------------------
+        -- 🎉 เควสทั้งหมดเสร็จ → วาร์ปไปโลกถัดไป
+        ----------------------------------------------------
+  print("🏁 เควสโลกนี้เสร็จ → ตรวจหาว่าโลกไหนยังไม่เสร็จ...")
+task.wait(4)
+teleportToNextNeededWorld()
+    end)
